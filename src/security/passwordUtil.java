@@ -1,4 +1,4 @@
-package service;
+package security;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;

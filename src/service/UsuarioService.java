@@ -2,6 +2,8 @@ package service;
 
 import dao.UsuarioDao;
 import model.UsuarioModel;
+import security.passwordUtil;
+
 import java.sql.SQLException;
 import java.util.List;
 
