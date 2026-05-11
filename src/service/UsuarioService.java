@@ -1,7 +1,7 @@
 package service;
 
 import dao.UsuarioDao;
-import model.UsuarioModel;
+import model.Usuario;
 import security.passwordUtil;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ public class UsuarioService {
         this.usuarioDao = usuarioDao;
     }
     
-    public void criarUsuario(UsuarioModel usuario) throws IllegalArgumentException, SQLException {
+    public void criarUsuario(Usuario usuario) throws IllegalArgumentException, SQLException {
         if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
             throw new IllegalArgumentException("O nome do usuário é obrigatório.");
         }
@@ -36,8 +36,8 @@ public class UsuarioService {
         }
         
         // Verificar email duplicado
-        List<UsuarioModel> usuarios = usuarioDao.findAll();
-        for (UsuarioModel u : usuarios) {
+        List<Usuario> usuarios = usuarioDao.findAll();
+        for (Usuario u : usuarios) {
             if (u.getEmail().equalsIgnoreCase(usuario.getEmail())) {
                 throw new IllegalArgumentException("Este email já está cadastrado.");
             }
@@ -50,7 +50,7 @@ public class UsuarioService {
         usuarioDao.create(usuario);
     }
     
-    public void atualizarUsuario(UsuarioModel usuario) throws IllegalArgumentException, SQLException {
+    public void atualizarUsuario(Usuario usuario) throws IllegalArgumentException, SQLException {
         if (usuario.getId() <= 0) {
             throw new IllegalArgumentException("ID do usuário é obrigatório para atualização.");
         }
@@ -74,14 +74,14 @@ public class UsuarioService {
         }
         
         // Verificar se o usuário existe
-        UsuarioModel usuarioExistente = usuarioDao.findById(usuario.getId());
+        Usuario usuarioExistente = usuarioDao.findById(usuario.getId());
         if (usuarioExistente == null) {
             throw new IllegalArgumentException("Usuário não encontrado.");
         }
         
         // Verificar email duplicado (ignorando o próprio usuário)
-        List<UsuarioModel> usuarios = usuarioDao.findAll();
-        for (UsuarioModel u : usuarios) {
+        List<Usuario> usuarios = usuarioDao.findAll();
+        for (Usuario u : usuarios) {
             if (u.getEmail().equalsIgnoreCase(usuario.getEmail()) && u.getId() != usuario.getId()) {
                 throw new IllegalArgumentException("Este email já está cadastrado.");
             }
@@ -94,18 +94,18 @@ public class UsuarioService {
         usuarioDao.update(usuario);
     }
     
-    public UsuarioModel lerUsuario(int id) throws IllegalArgumentException, SQLException {
+    public Usuario lerUsuario(int id) throws IllegalArgumentException, SQLException {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido.");
         }
-        UsuarioModel usuario = usuarioDao.findById(id);
+        Usuario usuario = usuarioDao.findById(id);
         if (usuario == null) {
             throw new IllegalArgumentException("Usuário não encontrado.");
         }
         return usuario;
     }
     
-    public List<UsuarioModel> lerTodosUsuarios() throws SQLException {
+    public List<Usuario> lerTodosUsuarios() throws SQLException {
         return usuarioDao.findAll();
     }
     
@@ -116,7 +116,7 @@ public class UsuarioService {
      * @return o objeto UsuarioModel se autenticado com sucesso
      * @throws IllegalArgumentException se email ou senha forem inválidos
      */
-    public UsuarioModel autenticar(String email, String senha) throws IllegalArgumentException, SQLException {
+    public Usuario autenticar(String email, String senha) throws IllegalArgumentException, SQLException {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("Email é obrigatório.");
         }
@@ -125,10 +125,10 @@ public class UsuarioService {
         }
         
         // Busca o usuário pelo email
-        List<UsuarioModel> usuarios = usuarioDao.findAll();
-        UsuarioModel usuarioEncontrado = null;
+        List<Usuario> usuarios = usuarioDao.findAll();
+        Usuario usuarioEncontrado = null;
         
-        for (UsuarioModel u : usuarios) {
+        for (Usuario u : usuarios) {
             if (u.getEmail().equalsIgnoreCase(email)) {
                 usuarioEncontrado = u;
                 break;
@@ -152,7 +152,7 @@ public class UsuarioService {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido.");
         }
-        UsuarioModel usuario = usuarioDao.findById(id);
+        Usuario usuario = usuarioDao.findById(id);
         if (usuario == null) {
             throw new IllegalArgumentException("Usuário não encontrado.");
         }

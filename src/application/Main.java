@@ -1,13 +1,13 @@
-package main;
+package application;
 
-import controller.usuarioController;
+import controller.UsuarioController;
 import java.sql.SQLException;
 
 public class Main { 
     
     public static void main(String[] args) {
         try {
-            usuarioController controller = new usuarioController();
+            UsuarioController controller = new UsuarioController();
             controller.executar();
             
         } catch (SQLException e) {

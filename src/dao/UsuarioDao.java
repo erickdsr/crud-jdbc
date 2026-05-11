@@ -1,6 +1,6 @@
 package dao;
 
-import model.UsuarioModel;
+import model.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +15,7 @@ public class UsuarioDao {
         this.connection = connection;
     }
 
-    public void create(UsuarioModel usuario) throws SQLException {
+    public void create(Usuario usuario) throws SQLException {
         String sql = "INSERT INTO usuarios (nome, email, senha, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -25,7 +25,7 @@ public class UsuarioDao {
             stmt.executeUpdate();
         }
     }
-    public void update(UsuarioModel usuario) throws SQLException {
+    public void update(Usuario usuario) throws SQLException {
         String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -44,7 +44,7 @@ public class UsuarioDao {
             stmt.executeUpdate();
         }
     }
-    public UsuarioModel findById(int id) throws SQLException {
+    public Usuario findById(int id) throws SQLException {
         String sql = "SELECT * FROM usuarios WHERE id = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -58,7 +58,7 @@ public class UsuarioDao {
         }
         return null;
     }
-    public UsuarioModel findByEmail(String email) throws SQLException {
+    public Usuario findByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM usuarios WHERE email = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -73,9 +73,9 @@ public class UsuarioDao {
         return null;
     }
 
-    public List<UsuarioModel> findAll() throws SQLException {
+    public List<Usuario> findAll() throws SQLException {
         String sql = "SELECT * FROM usuarios WHERE deleted_at IS NULL ORDER BY id DESC";
-        List<UsuarioModel> usuarios = new ArrayList<>();
+        List<Usuario> usuarios = new ArrayList<>();
 
         try (var stmt = connection.prepareStatement(sql);
              var rs = stmt.executeQuery()) {
@@ -87,8 +87,8 @@ public class UsuarioDao {
         return usuarios;
     }
 
-    private UsuarioModel mapRowToModel(ResultSet rs) throws SQLException {
-        UsuarioModel usuario = new UsuarioModel();
+    private Usuario mapRowToModel(ResultSet rs) throws SQLException {
+        Usuario usuario = new Usuario();
         usuario.setId(rs.getInt("id"));
         usuario.setNome(rs.getString("nome"));
         usuario.setEmail(rs.getString("email"));

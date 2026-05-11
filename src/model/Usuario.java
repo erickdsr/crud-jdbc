@@ -1,7 +1,7 @@
 package model;
 import java.time.LocalDateTime;
 
-public class UsuarioModel {
+public class Usuario {
 
     private int id;
     private String nome;
@@ -11,13 +11,6 @@ public class UsuarioModel {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-
-
-    public UsuarioModel() {
-     nome = "";
-     email = "";
-     senha = "";
-    }
 
     public int getId() {
         return id;

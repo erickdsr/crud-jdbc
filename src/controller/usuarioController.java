@@ -2,19 +2,19 @@ package controller;
 
 import service.UsuarioService;
 import dao.UsuarioDao;
-import model.UsuarioModel;
-import config.UsuarioConfig;
+import model.Usuario;
+import config.DatabaseConfig;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class usuarioController {
+public class UsuarioController {
     
     private UsuarioService usuarioService;
     private Connection connection;
     
-    public usuarioController() throws SQLException {
+    public UsuarioController() throws SQLException {
         // Obter conexão do config
-        this.connection = UsuarioConfig.getConnection();
+        this.connection = DatabaseConfig.getConnection();
         
         // Criar DAO e Service
         UsuarioDao usuarioDao = new UsuarioDao(this.connection);
@@ -24,7 +24,7 @@ public class usuarioController {
     public void executar() {
         try {
             // Criar um usuário
-            UsuarioModel novoUsuario = new UsuarioModel();
+            Usuario novoUsuario = new Usuario();
             novoUsuario.setNome("pedro");
             novoUsuario.setEmail("pedro@email.com");
             novoUsuario.setSenha("sV09mda");

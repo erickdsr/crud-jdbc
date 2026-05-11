@@ -21,12 +21,11 @@ public class passwordUtil {
             byte[] salt = new byte[SALT_LENGTH];
             random.nextBytes(salt);
             
-            // Combina a senha com o salt
-            String saltedPassword = Base64.getEncoder().encodeToString(salt) + password;
-            
-            // Faz o hash
+            // Faz o hash combinando senha e salt
             MessageDigest md = MessageDigest.getInstance(ALGORITHM);
-            byte[] hashedPassword = md.digest(saltedPassword.getBytes());
+            md.update(password.getBytes());
+            md.update(salt);
+            byte[] hashedPassword = md.digest();
             
             // Retorna salt + hash codificados em Base64 (separados por :)
             String hash = Base64.getEncoder().encodeToString(hashedPassword);
@@ -58,12 +57,11 @@ public class passwordUtil {
             // Decodifica o salt
             byte[] salt = Base64.getDecoder().decode(saltEncoded);
             
-            // Combina a senha com o salt
-            String saltedPassword = saltEncoded + password;
-            
-            // Faz o hash da senha fornecida
+            // Faz o hash da senha fornecida com o salt
             MessageDigest md = MessageDigest.getInstance(ALGORITHM);
-            byte[] hashedPasswordBytes = md.digest(saltedPassword.getBytes());
+            md.update(password.getBytes());
+            md.update(salt);
+            byte[] hashedPasswordBytes = md.digest();
             String computedHash = Base64.getEncoder().encodeToString(hashedPasswordBytes);
             
             // Compara com o hash armazenado
