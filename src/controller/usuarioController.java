@@ -3,7 +3,7 @@ package controller;
 import service.UsuarioService;
 import dao.UsuarioDao;
 import model.Usuario;
-import config.DatabaseConfig;
+import db.DatabaseConfig;
 import java.sql.Connection;
 import java.sql.SQLException;
 
