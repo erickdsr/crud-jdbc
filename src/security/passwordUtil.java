@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-public class passwordUtil {
+public class PasswordUtil {
     
     private static final int SALT_LENGTH = 16;
     private static final String ALGORITHM = "SHA-256";

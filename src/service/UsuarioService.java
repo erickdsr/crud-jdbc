@@ -2,9 +2,10 @@ package service;
 
 import dao.UsuarioDao;
 import model.Usuario;
-import security.passwordUtil;
+import security.PasswordUtil;
+import dto.UsuarioDTO;
+import util.Validator;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UsuarioService {
@@ -15,63 +16,33 @@ public class UsuarioService {
         this.usuarioDao = usuarioDao;
     }
     
-    public void criarUsuario(Usuario usuario) throws IllegalArgumentException, SQLException {
-        if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
-            throw new IllegalArgumentException("O nome do usuário é obrigatório.");
-        }
-        if (usuario.getNome().length() < 3) {
-            throw new IllegalArgumentException("O nome deve ter pelo menos 3 caracteres.");
-        }
-        if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("O email do usuário é obrigatório.");
-        }
-        if (!usuario.getEmail().contains("@")) {
-            throw new IllegalArgumentException("O email deve conter o caractere @.");
-        }
-        if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-            throw new IllegalArgumentException("A senha do usuário é obrigatória.");
-        }
-        if (usuario.getSenha().length() < 6) {
-            throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres.");
-        }
+    public void criarUsuario(Usuario usuario) throws IllegalArgumentException {
+        // Validar usando o Validator
+        Validator.validarNome(usuario.getNome());
+        Validator.validarEmail(usuario.getEmail());
+        Validator.validarSenha(usuario.getSenha());
         
         // Verificar email duplicado
-        List<Usuario> usuarios = usuarioDao.findAll();
-        for (Usuario u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(usuario.getEmail())) {
-                throw new IllegalArgumentException("Este email já está cadastrado.");
-            }
+        if (usuarioDao.existsByEmail(usuario.getEmail())) {
+            throw new IllegalArgumentException("Este email já está cadastrado.");
         }
         
         // Faz hash da senha antes de salvar
-        String senhaHasheada = passwordUtil.hashPassword(usuario.getSenha());
+        String senhaHasheada = PasswordUtil.hashPassword(usuario.getSenha());
         usuario.setSenha(senhaHasheada);
         
         usuarioDao.create(usuario);
     }
     
-    public void atualizarUsuario(Usuario usuario) throws IllegalArgumentException, SQLException {
+    public void atualizarUsuario(Usuario usuario) throws IllegalArgumentException {
         if (usuario.getId() <= 0) {
             throw new IllegalArgumentException("ID do usuário é obrigatório para atualização.");
         }
-        if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
-            throw new IllegalArgumentException("O nome do usuário é obrigatório.");
-        }
-        if (usuario.getNome().length() < 3) {
-            throw new IllegalArgumentException("O nome deve ter pelo menos 3 caracteres.");
-        }
-        if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("O email do usuário é obrigatório.");
-        }
-        if (!usuario.getEmail().contains("@")) {
-            throw new IllegalArgumentException("O email deve conter o caractere @.");
-        }
-        if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-            throw new IllegalArgumentException("A senha do usuário é obrigatória.");
-        }
-        if (usuario.getSenha().length() < 6) {
-            throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres.");
-        }
+        
+        // Validar usando o Validator
+        Validator.validarNome(usuario.getNome());
+        Validator.validarEmail(usuario.getEmail());
+        Validator.validarSenha(usuario.getSenha());
         
         // Verificar se o usuário existe
         Usuario usuarioExistente = usuarioDao.findById(usuario.getId());
@@ -80,21 +51,19 @@ public class UsuarioService {
         }
         
         // Verificar email duplicado (ignorando o próprio usuário)
-        List<Usuario> usuarios = usuarioDao.findAll();
-        for (Usuario u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(usuario.getEmail()) && u.getId() != usuario.getId()) {
-                throw new IllegalArgumentException("Este email já está cadastrado.");
-            }
+        Usuario usuarioComMesmoEmail = usuarioDao.findByEmail(usuario.getEmail());
+        if (usuarioComMesmoEmail != null && usuarioComMesmoEmail.getId() != usuario.getId()) {
+            throw new IllegalArgumentException("Este email já está cadastrado.");
         }
         
         // Faz hash da senha antes de atualizar
-        String senhaHasheada = passwordUtil.hashPassword(usuario.getSenha());
+        String senhaHasheada = PasswordUtil.hashPassword(usuario.getSenha());
         usuario.setSenha(senhaHasheada);
         
         usuarioDao.update(usuario);
     }
     
-    public Usuario lerUsuario(int id) throws IllegalArgumentException, SQLException {
+    public Usuario lerUsuario(int id) throws IllegalArgumentException {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido.");
         }
@@ -105,7 +74,7 @@ public class UsuarioService {
         return usuario;
     }
     
-    public List<Usuario> lerTodosUsuarios() throws SQLException {
+    public List<Usuario> lerTodosUsuarios() {
         return usuarioDao.findAll();
     }
     
@@ -116,24 +85,14 @@ public class UsuarioService {
      * @return o objeto UsuarioModel se autenticado com sucesso
      * @throws IllegalArgumentException se email ou senha forem inválidos
      */
-    public Usuario autenticar(String email, String senha) throws IllegalArgumentException, SQLException {
-        if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email é obrigatório.");
-        }
+    public Usuario autenticar(String email, String senha) throws IllegalArgumentException {
+        Validator.validarEmail(email);
         if (senha == null || senha.isEmpty()) {
             throw new IllegalArgumentException("Senha é obrigatória.");
         }
         
         // Busca o usuário pelo email
-        List<Usuario> usuarios = usuarioDao.findAll();
-        Usuario usuarioEncontrado = null;
-        
-        for (Usuario u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                usuarioEncontrado = u;
-                break;
-            }
-        }
+        Usuario usuarioEncontrado = usuarioDao.findByEmail(email);
         
         // Verifica se o usuário foi encontrado
         if (usuarioEncontrado == null) {
@@ -141,14 +100,14 @@ public class UsuarioService {
         }
         
         // Verifica se a senha corresponde ao hash armazenado
-        if (!passwordUtil.verifyPassword(senha, usuarioEncontrado.getSenha())) {
+        if (!PasswordUtil.verifyPassword(senha, usuarioEncontrado.getSenha())) {
             throw new IllegalArgumentException("Email ou senha inválidos.");
         }
         
         return usuarioEncontrado;
     }
     
-    public void deletarUsuario(int id) throws IllegalArgumentException, SQLException {
+    public void deletarUsuario(int id) throws IllegalArgumentException {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido.");
         }
@@ -158,5 +117,27 @@ public class UsuarioService {
         }
         usuarioDao.softDelete(id);
     }
+    private Usuario paraEntidade(UsuarioDTO dto) {
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setSenha(dto.getSenha());
+        return usuario;
+    }
     
+    private UsuarioDTO paraDTO(Usuario usuario) {
+        UsuarioDTO dto = new UsuarioDTO();
+        dto.setNome(usuario.getNome());
+        dto.setEmail(usuario.getEmail());
+        dto.setSenha(usuario.getSenha());
+        return dto;
+    }
+    public void criarUsuario(UsuarioDTO usuarioDTO) throws IllegalArgumentException {
+        Usuario usuario = paraEntidade(usuarioDTO);
+        this.criarUsuario(usuario);
+    }
+    public UsuarioDTO lerUsuarioComoDTO(int id) throws IllegalArgumentException {
+        Usuario usuario = lerUsuario(id);
+        return paraDTO(usuario);
+    }
 }

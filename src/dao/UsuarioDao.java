@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.DbException;
 import model.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +16,7 @@ public class UsuarioDao {
         this.connection = connection;
     }
 
-    public void create(Usuario usuario) throws SQLException {
+    public void create(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nome, email, senha, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -23,9 +24,11 @@ public class UsuarioDao {
             stmt.setString(2, usuario.getEmail());
             stmt.setString(3, usuario.getSenha());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DbException("Erro ao criar usuário", e);
         }
     }
-    public void update(Usuario usuario) throws SQLException {
+    public void update(Usuario usuario) {
         String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -34,17 +37,21 @@ public class UsuarioDao {
             stmt.setString(3, usuario.getSenha());
             stmt.setInt(4, usuario.getId());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DbException("Erro ao atualizar usuário", e);
         }
     }
-    public void softDelete(int id) throws SQLException {
+    public void softDelete(int id) {
         String sql = "UPDATE usuarios SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DbException("Erro ao excluir usuário", e);
         }
     }
-    public Usuario findById(int id) throws SQLException {
+    public Usuario findById(int id) {
         String sql = "SELECT * FROM usuarios WHERE id = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -55,10 +62,12 @@ public class UsuarioDao {
                     return mapRowToModel(rs);
                 }
             }
+        } catch (SQLException e) {
+            throw new DbException("Erro ao buscar usuário por ID", e);
         }
         return null;
     }
-    public Usuario findByEmail(String email) throws SQLException {
+    public Usuario findByEmail(String email) {
         String sql = "SELECT * FROM usuarios WHERE email = ? AND deleted_at IS NULL";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -69,11 +78,26 @@ public class UsuarioDao {
                     return mapRowToModel(rs);
                 }
             }
+        } catch (SQLException e) {
+            throw new DbException("Erro ao buscar usuário por email", e);
         }
         return null;
     }
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT 1 FROM usuarios WHERE email = ? AND deleted_at IS NULL";
 
-    public List<Usuario> findAll() throws SQLException {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+
+            try (var rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new DbException("Erro ao verificar email", e);
+        }
+    }
+
+    public List<Usuario> findAll() {
         String sql = "SELECT * FROM usuarios WHERE deleted_at IS NULL ORDER BY id DESC";
         List<Usuario> usuarios = new ArrayList<>();
 
@@ -83,6 +107,8 @@ public class UsuarioDao {
             while (rs.next()) {
                 usuarios.add(mapRowToModel(rs));
             }
+        } catch (SQLException e) {
+            throw new DbException("Erro ao listar usuários", e);
         }
         return usuarios;
     }

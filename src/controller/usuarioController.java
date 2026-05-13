@@ -2,6 +2,7 @@ package controller;
 
 import service.UsuarioService;
 import dao.UsuarioDao;
+import exceptions.DbException;
 import model.Usuario;
 import db.DatabaseConfig;
 import java.sql.Connection;
@@ -32,8 +33,8 @@ public class UsuarioController {
             usuarioService.criarUsuario(novoUsuario);
             System.out.println("Usuário criado com sucesso!");
             
-        } catch (SQLException e) {
-            System.err.println("Erro de SQL: " + e.getMessage());
+        } catch (DbException e) {
+            System.err.println("Erro de banco de dados: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             System.err.println("Erro de validação: " + e.getMessage());
         } finally {
