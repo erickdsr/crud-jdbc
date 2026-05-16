@@ -1,14 +1,25 @@
 package model;
 import java.time.LocalDateTime;
 
+/**
+ * Modelo de usuário. Representa um registro de usuário no banco de dados.
+ * Contém informações: id, nome, email, senha e datas de auditoria.
+ */
 public class Usuario {
 
+    // Identificador único
     private int id;
+    // Nome do usuário
     private String nome;
+    // Email do usuário (único)
     private String email;
+    // Senha do usuário (hashada)
     private String senha;
+    // Data de criação do registro
     private LocalDateTime createdAt;
+    // Data da última atualização
     private LocalDateTime updatedAt;
+    // Data de exclusão lógica (soft delete)
     private LocalDateTime deletedAt;
 
 

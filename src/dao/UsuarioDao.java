@@ -9,13 +9,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object de usuários. Acessa dados no banco de dados.
+ * Implementa operações CRUD e buscas específicas com soft delete.
+ */
 public class UsuarioDao {
+    // Conexão com o banco de dados
     private Connection connection;
 
+    
+     //Construtor. Injeta a conexão com o banco.
     public UsuarioDao(Connection connection) {
         this.connection = connection;
     }
 
+    
+     //Insere novo usuário no banco. Define created_at e updated_at como NOW().
+     
     public void create(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nome, email, senha, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())";
 
@@ -28,6 +38,10 @@ public class UsuarioDao {
             throw new DbException("Erro ao criar usuário", e);
         }
     }
+    /**
+     * Atualiza usuário existente. Ignora deletados (soft delete).
+     * Define updated_at como NOW().
+     */
     public void update(Usuario usuario) {
         String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
@@ -41,6 +55,9 @@ public class UsuarioDao {
             throw new DbException("Erro ao atualizar usuário", e);
         }
     }
+    /**
+     * Marca usuário como deletado (soft delete). Define deleted_at como NOW().
+     */
     public void softDelete(int id) {
         String sql = "UPDATE usuarios SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL";
 
@@ -51,6 +68,10 @@ public class UsuarioDao {
             throw new DbException("Erro ao excluir usuário", e);
         }
     }
+    /**
+     * Busca usuário por ID. Ignora deletados.
+     * @return usuário encontrado ou null
+     */
     public Usuario findById(int id) {
         String sql = "SELECT * FROM usuarios WHERE id = ? AND deleted_at IS NULL";
 
@@ -67,6 +88,10 @@ public class UsuarioDao {
         }
         return null;
     }
+    /**
+     * Busca usuário por email. Ignora deletados.
+     * @return usuário encontrado ou null
+     */
     public Usuario findByEmail(String email) {
         String sql = "SELECT * FROM usuarios WHERE email = ? AND deleted_at IS NULL";
 
@@ -83,6 +108,10 @@ public class UsuarioDao {
         }
         return null;
     }
+    /**
+     * Verifica se email existe e não foi deletado.
+     * @return true se existe
+     */
     public boolean existsByEmail(String email) {
         String sql = "SELECT 1 FROM usuarios WHERE email = ? AND deleted_at IS NULL";
 
@@ -97,6 +126,10 @@ public class UsuarioDao {
         }
     }
 
+    /**
+     * Busca todos os usuários não deletados.
+     * @return lista de usuários
+     */
     public List<Usuario> findAll() {
         String sql = "SELECT * FROM usuarios WHERE deleted_at IS NULL ORDER BY id DESC";
         List<Usuario> usuarios = new ArrayList<>();
@@ -113,6 +146,9 @@ public class UsuarioDao {
         return usuarios;
     }
 
+    /**
+     * Converte uma linha do ResultSet em objeto Usuario.
+     */
     private Usuario mapRowToModel(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
         usuario.setId(rs.getInt("id"));

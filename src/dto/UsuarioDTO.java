@@ -1,9 +1,16 @@
 package dto;
 
+/**
+ * Data Transfer Object. Transfere dados de usuário entre camadas.
+ * Contém apenas campos essenciais: nome, email e senha.
+ */
 public class UsuarioDTO {
 
+    // Nome do usuário
     private String nome;
+    // Email do usuário
     private String email;
+    // Senha do usuário
     private String senha;
 
     public String getNome() {

@@ -4,15 +4,21 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * Utilitário de segurança de senha. Faz hash com salt e verifica.
+ * Usa SHA-256 com salt aleatório de 16 bytes.
+ */
 public class PasswordUtil {
     
+    // Tamanho do salt em bytes
     private static final int SALT_LENGTH = 16;
+    // Algoritmo de hash
     private static final String ALGORITHM = "SHA-256";
     
     /**
-     * Faz hash da senha com um salt aleatório
+     * Faz hash de senha. Gera salt aleatório, combina com senha e hasheia.
      * @param password senha em texto plano
-     * @return senha hashada com salt (formato: salt:hash)
+     * @return formato salt:hash em Base64
      */
     public static String hashPassword(String password) {
         try {
@@ -38,10 +44,11 @@ public class PasswordUtil {
     }
     
     /**
-     * Verifica se a senha fornecida corresponde ao hash armazenado
+     * Verifica se senha corresponde ao hash. Extrai salt do hash, rehasheia senha fornecida
+     * e compara resultados.
      * @param password senha em texto plano
-     * @param hashedPassword hash armazenado no formato (salt:hash)
-     * @return true se a senha corresponde ao hash
+     * @param hashedPassword hash armazenado (format salt:hash)
+     * @return true se senha bate com hash
      */
     public static boolean verifyPassword(String password, String hashedPassword) {
         try {
