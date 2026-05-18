@@ -16,7 +16,7 @@
         }
     ],
     "java.project.sourcePaths": [
-        "src"
+        "src/main/java"
     ],
     "java.project.referencedLibraries": [
         "c:\\Users\\erick\\Downloads\\mysql-connector-j-9.7.0\\mysql-connector-j-9.7.0\\mysql-connector-j-9.7.0.jar"
