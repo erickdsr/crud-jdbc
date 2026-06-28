@@ -1,4 +1,5 @@
-CRUD JDBC - Java 25
+#CRUD JDBC
+CRUD de usuarios criado para testar minha prática em java e POO. 
 
 Sistema CRUD desenvolvido com Java 25 utilizando JDBC, arquitetura em camadas e integração com MySQL.
 
